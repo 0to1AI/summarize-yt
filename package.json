@@ -1,0 +1,17 @@
+{
+  "name": "summarize-yt",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Michał Miszczyszyn <michal@mmiszy.pl> (https://typeofweb.com/)",
+  "license": "ISC",
+  "devDependencies": {
+    "prettier": "3.2.5",
+    "tsx": "4.7.2",
+    "typescript": "5.4.5"
+  }
+}
