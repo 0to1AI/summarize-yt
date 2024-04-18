@@ -90,6 +90,11 @@ if (!jsonFileExists) {
 			summarize: false,
 		},
 	);
+	if (deepgramResults.error) {
+		console.error("Deepgram error:", deepgramResults.error);
+		process.exit(4);
+	}
+	
 	await Fs.promises.writeFile(jsonFilePath, JSON.stringify(deepgramResults, null, 2));
   console.log("Transcribed audio file to:", jsonFilePath);
 } else {
