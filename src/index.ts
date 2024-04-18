@@ -5,6 +5,14 @@ import * as Path from "node:path";
 import { execFile } from "node:child_process";
 import { OpenAI } from "openai";
 
+const [videoId, ...keyPoints] = process.argv.slice(2);
+const keyPoint = keyPoints.join(" ").trim();
+
+if (!videoId) {
+  console.error("Please provide the video ID as the first argument.");
+  process.exit(1);
+}
+
 const DEEPGRAM_KEY = process.env.DEEPGRAM_KEY;
 if (!DEEPGRAM_KEY) {
 	console.error("Please provide the DEEPGRAM_KEY environment variable.");
@@ -15,8 +23,6 @@ if (!OPENAI_API_KEY) {
 	console.error("Please provide the OPENAI_API_KEY environment variable.");
 	process.exit(3);
 }
-
-const videoId = "gnLqlJYDAKQ";
 
 const downloadsDir = Path.join(process.cwd(), ".downloads");
 const videoFilePath = Path.join(downloadsDir, `${videoId}.mp4`);
@@ -85,13 +91,16 @@ if (!jsonFileExists) {
 		},
 	);
 	await Fs.promises.writeFile(jsonFilePath, JSON.stringify(deepgramResults, null, 2));
+  console.log("Transcribed audio file to:", jsonFilePath);
 } else {
 	console.log("Transcription already exists:", jsonFilePath);
 }
+
 const transcriptFile = JSON.parse(
 	await Fs.promises.readFile(jsonFilePath, "utf-8"),
 ) as DeepgramResponse<SyncPrerecordedResponse>;
 
+console.log(`Asking AI to summarize the video...`);
 const openai = new OpenAI();
 const aiSummary = await openai.chat.completions.create({
 	// model: "gpt-3.5-turbo",
@@ -104,6 +113,7 @@ const aiSummary = await openai.chat.completions.create({
 You're Mike Wazowsky, an intern assistant whose sole purpose is to analyse transcripts of YouTube videos and suggest a title and description that will be used on YouTube.
 The YouTube channel you're working for is targetting software engineers and is focused on technology, programming and AI. The aim of the video is to educate about AI and entertain at the same time.
 The content you provide should be based on the transcript of the video.
+${keyPoint ? `The most important point in this video is: ${keyPoint}. Make sure to mention it.` : ""}
 Do not use hashtags. Use maximum of 2 emojis per sentence.
 
 The title should be catchy and should follow the rules of other YT videos. It must not exceed 110 characters.
