@@ -9,8 +9,8 @@
 		"forceConsistentCasingInFileNames": true,
 		"noEmit": true,
 		"esModuleInterop": true,
-		"module": "esnext",
-		"moduleResolution": "Bundler",
+		"module": "NodeNext",
+		"moduleResolution": "NodeNext",
 		"resolveJsonModule": true,
 		"isolatedModules": true,
 		"jsx": "preserve",
@@ -18,8 +18,8 @@
 		"allowUnreachableCode": true,
 		"noUnusedLocals": true,
 		"noUnusedParameters": true,
-		"noUncheckedIndexedAccess": true
+		"noUncheckedIndexedAccess": true,
 	},
 	"include": ["**/*.mjs", "**/*.ts", "**/*.tsx"],
-	"exclude": ["node_modules"]
+	"exclude": ["node_modules"]	
 }
