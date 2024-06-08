@@ -9,20 +9,6 @@ import type { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 const [videoId, ...keyPoints] = process.argv.slice(2);
 const keyPoint = keyPoints.join(" ").trim();
 
-type OllamaResponse = {
-	model: string;
-	created_at: string;
-	response: string;
-	done: boolean;
-	context: number[];
-	total_duration: number;
-	load_duration: number;
-	prompt_eval_count: number;
-	prompt_eval_duration: number;
-	eval_count: number;
-	eval_duration: number;
-};
-
 if (!videoId) {
 	console.error("Please provide the video ID as the first argument.");
 	process.exit(1);
@@ -156,10 +142,11 @@ The YouTube channel you're working for is targetting software engineers and is f
 The content you provide should be based on the transcript of the video as well as your prior knowledge.
 ${keyPoint ? `The most important point in this video is: ${keyPoint}. Make sure to mention it.` : ""}
 
-Pick a quote from the video that you think is the most engaging and informative. Use it in the content you create.
+${true ? 'Pick a quote from this transcript that you think is the most engaging and informative. Use it in the content you create.' : ''}
 Create a 140 characters long tweet: it should be engaging and invite humans to watch the video on YouTube, preferably with a call to action or a question inviting to discuss. The tweet should follow all rules of Twitter.
 Create a 500 characters long LinkedIn Post: it should be informative and engaging, and invite humans to watch the video on YouTube, preferably with a call to action or a question inviting to discuss. The post should follow all rules of LinkedIn.
 Do not use hashtags. Use maximum of 2 emojis per sentence. Keep the language simple and engaging. Never use the word "delve".
+Make sure the Tweet is never shorter than 120 characters.
 Make sure the linkedin post is never shorter than 400 characters.
 
 Once you're done, asses the quality of your own work with a score from 1 to 10. Take into account the goal of the content you're creating: attracting people and promoting software engineering and AI engineering. List things that you think could be improved.
@@ -174,19 +161,6 @@ Return response in JSON format { quote: string, tweet: string, linkedin: string,
 		role: "user",
 		content:
 			transcriptFile.result?.results.channels[0]?.alternatives[0]?.paragraphs?.transcript.trim(),
-	},
-	{
-		role: "user",
-		content: `
-My version of the tweet is:
-
-❝We believe in a future where developers are amplified, not automated.❞
-How does AI impact your coding?🤔
-
-Watch our interview with @tylerjdunn, in which we discuss the future of software engineering and how @continuedev may revolutionize the tech scene."
-
-Create the LinkedIn post based on this.
-		`.trim()
 	}
 ] as ChatCompletionMessageParam[];
 
@@ -194,7 +168,7 @@ if (OPENAI_API_KEY) {
 	console.log("Sending to OpenAI...");
 
 	const messages = [...baseMessages];
-	for (let i = 0; i < 3; i++) {
+	for (let i = 0; i < 2; i++) {
 		const openai = new OpenAI();
 		const aiResponse = await openai.chat.completions.create({
 			// model: "gpt-3.5-turbo",
@@ -227,30 +201,11 @@ if (OPENAI_API_KEY) {
 			content: [...json.improvements.map(improvement => `- ${improvement}`),
 				"Do not use hashtags.",
 				"Make sure the linkedin post is between 400 and 500 characters.",
-				"Make sure the tweet is between 130 and 140 characters.",
+				"Make sure the tweet is between more than 130 characters.",
 				"Do not use the word 'delve'.",
 			].join("\n"),
 		})
 	}
 }
-
-// if (OLLAMA_URL) {
-// 	console.log("Sending to Ollama...");
-// 	const ollamaResponse = await fetch(OLLAMA_URL + "/api/generate", {
-// 		method: "POST",
-// 		headers: {
-// 			"Content-Type": "application/json",
-// 		},
-// 		body: JSON.stringify({
-// 			prompt: baseMessages[0]?.content,
-// 			model: "llama3:70b",
-// 			stream: false,
-// 		}),
-// 	});
-
-// 	// const json = (await ollamaResponse.json()) as OllamaResponse;
-// 	// console.log(json.response);
-// 	console.log(await ollamaResponse.text());
-// }
 
 process.exit(0);
